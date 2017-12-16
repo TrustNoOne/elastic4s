@@ -1,7 +1,5 @@
 package com.sksamuel.elastic4s
 
-import com.sksamuel.elastic4s.json.XContentBuilder
-
 sealed trait ElasticsearchTimeUnit {
   private[elastic4s] def unit: String
 }
@@ -46,19 +44,14 @@ sealed trait ElasticsearchDate {
   type Date
 
   def date: Date
-
-  private[elastic4s] def addField(builder: XContentBuilder, name: String): XContentBuilder
 }
 
 object ElasticsearchDate {
 
   val Now = ElasticsearchStringDate("now")
 
-  def fromString(date: String): ElasticsearchStringDate =
-    ElasticsearchStringDate(date)
-
-  def fromEpochMillis(date: Long): ElasticsearchEpochDate =
-    ElasticsearchEpochDate(date)
+  def apply(date: String): ElasticsearchStringDate = ElasticsearchStringDate(date)
+  def apply(date: Long): ElasticsearchEpochDate = ElasticsearchEpochDate(date)
 }
 
 
@@ -103,14 +96,8 @@ private[elastic4s] case class ElasticsearchStringDate(date: String) extends Elas
   def minusHours(hours: Int): ElasticsearchStringDate = minus(hours, ElasticsearchTimeUnit.Hours)
   def minusMinutes(minutes: Int): ElasticsearchStringDate = minus(minutes, ElasticsearchTimeUnit.Minutes)
   def minusSeconds(seconds: Int): ElasticsearchStringDate = minus(seconds, ElasticsearchTimeUnit.Seconds)
-
-  override private[elastic4s] def addField(builder: XContentBuilder, name: String): XContentBuilder =
-    builder.field(name, date)
 }
 
 private[elastic4s] case class ElasticsearchEpochDate(date: Long) extends ElasticsearchDate {
   type Date = Long
-
-  override private[elastic4s] def addField(builder: XContentBuilder, name: String): XContentBuilder =
-    builder.field(name, date)
 }

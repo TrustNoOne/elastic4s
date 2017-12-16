@@ -16,7 +16,6 @@ object HistogramOrder {
   val COUNT_DESC = HistogramOrder("_count", false)
 }
 
-case class ExtendedBounds(min: Long, max: Long)
 
 case class DateHistogramAggregation(name: String,
                                     interval: Option[DateHistogramInterval] = None,

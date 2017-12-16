@@ -7,15 +7,15 @@ class ElasticsearchDateTest extends WordSpec with Matchers {
 
   "ElasticsearchDate" should {
     "parse a string date" in {
-      ElasticsearchDate.fromString("2018-01-01") shouldBe ElasticsearchStringDate("2018-01-01")
+      ElasticsearchDate("2018-01-01") shouldBe ElasticsearchStringDate("2018-01-01")
     }
 
     "parse an epoch date" in {
-      ElasticsearchDate.fromEpochMillis(1234567890L) shouldBe ElasticsearchEpochDate(1234567890L)
+      ElasticsearchDate(1234567890L) shouldBe ElasticsearchEpochDate(1234567890L)
     }
 
     "add amounts of time" in {
-      val d1 = ElasticsearchDate.fromString("2018-01-01")
+      val d1 = ElasticsearchDate("2018-01-01")
       d1.plus(1, Years).date shouldBe "2018-01-01||+1y"
       d1.plus(2, Months).date shouldBe "2018-01-01||+2M"
       d1.plus(3, Weeks).date shouldBe "2018-01-01||+3w"
@@ -26,7 +26,7 @@ class ElasticsearchDateTest extends WordSpec with Matchers {
     }
 
     "add amounts of time (helper methods)" in {
-      val d1 = ElasticsearchDate.fromString("2018-01-01")
+      val d1 = ElasticsearchDate("2018-01-01")
       d1.plusYears(1) shouldBe d1.plus(1, Years)
       d1.plusMonths(2) shouldBe d1.plus(2, Months)
       d1.plusWeeks(3) shouldBe d1.plus(3, Weeks)
@@ -37,7 +37,7 @@ class ElasticsearchDateTest extends WordSpec with Matchers {
     }
 
     "subtract amounts of time" in {
-      val d1 = ElasticsearchDate.fromString("2018-01-01")
+      val d1 = ElasticsearchDate("2018-01-01")
       d1.minus(1, Years).date shouldBe "2018-01-01||-1y"
       d1.minus(2, Months).date shouldBe "2018-01-01||-2M"
       d1.minus(3, Weeks).date shouldBe "2018-01-01||-3w"
@@ -48,7 +48,7 @@ class ElasticsearchDateTest extends WordSpec with Matchers {
     }
 
     "subtract amounts of time (helper methods)" in {
-      val d1 = ElasticsearchDate.fromString("2018-01-01")
+      val d1 = ElasticsearchDate("2018-01-01")
       d1.minusYears(1) shouldBe d1.minus(1, Years)
       d1.minusMonths(2) shouldBe d1.minus(2, Months)
       d1.minusWeeks(3) shouldBe d1.minus(3, Weeks)
@@ -59,7 +59,7 @@ class ElasticsearchDateTest extends WordSpec with Matchers {
     }
 
     "round down to a time unit" in {
-      val d1 = ElasticsearchDate.fromString("2018-01-01")
+      val d1 = ElasticsearchDate("2018-01-01")
       d1.roundedTo(Years).date shouldBe "2018-01-01||/y"
       d1.roundedTo(Months).date shouldBe "2018-01-01||/M"
       d1.roundedTo(Weeks).date shouldBe "2018-01-01||/w"
@@ -70,7 +70,7 @@ class ElasticsearchDateTest extends WordSpec with Matchers {
     }
 
     "support 'now' date" in {
-      val now = ElasticsearchDate.fromString("now")
+      val now = ElasticsearchDate("now")
       now shouldBe ElasticsearchDate.Now
       now.plus(1, Years).date shouldBe "now+1y"
       now.minus(2, Days).date shouldBe "now-2d"
@@ -80,7 +80,7 @@ class ElasticsearchDateTest extends WordSpec with Matchers {
       ElasticsearchDate.Now.plusDays(1).minusHours(2).roundedTo(Months)
         .date shouldBe "now+1d-2h/M"
 
-      ElasticsearchDate.fromString("2018-01-01").minusSeconds(1).roundedTo(Days).plusHours(1)
+      ElasticsearchDate("2018-01-01").minusSeconds(1).roundedTo(Days).plusHours(1)
           .date shouldBe "2018-01-01||-1s/d+1h"
     }
   }

@@ -1,9 +1,10 @@
 package com.sksamuel.elastic4s.search.aggs
 
-import com.sksamuel.elastic4s.RefreshPolicy
+import com.sksamuel.elastic4s.{ElasticsearchDate, RefreshPolicy}
 import com.sksamuel.elastic4s.http.ElasticDsl
 import com.sksamuel.elastic4s.http.search.DateHistogramBucket
 import com.sksamuel.elastic4s.searches.DateHistogramInterval
+import com.sksamuel.elastic4s.searches.aggs.ExtendedBounds
 import com.sksamuel.elastic4s.testkit.DiscoveryLocalNodeProvider
 import org.scalatest.{FreeSpec, Matchers}
 
@@ -42,7 +43,12 @@ class DateHistogramAggregationHttpTest extends FreeSpec with DiscoveryLocalNodeP
 
       val resp = http.execute {
         search("datehistaggs").matchAllQuery().aggs {
-          dateHistogramAgg("agg1", "premiere_date").interval(DateHistogramInterval.Month)
+          dateHistogramAgg("agg1", "premiere_date")
+            .interval(DateHistogramInterval.Month)
+            .extendedBounds(ExtendedBounds(
+              min = ElasticsearchDate("01/01/2008").minusDays(15),
+              max = ElasticsearchDate(1214870400000L) // 01/07/2008
+            ))
         }
       }.await.right.get.result
 
@@ -50,12 +56,14 @@ class DateHistogramAggregationHttpTest extends FreeSpec with DiscoveryLocalNodeP
 
       val agg = resp.aggs.dateHistogram("agg1")
       agg.buckets.map(_.copy(data = Map.empty)) shouldBe Seq(
+        DateHistogramBucket("01/12/2007", 1196467200000L, 0, Map.empty), // extended bound
         DateHistogramBucket("01/01/2008", 1199145600000L, 3, Map.empty),
         DateHistogramBucket("01/02/2008", 1201824000000L, 0, Map.empty),
         DateHistogramBucket("01/03/2008", 1204329600000L, 1, Map.empty),
         DateHistogramBucket("01/04/2008", 1207008000000L, 0, Map.empty),
         DateHistogramBucket("01/05/2008", 1209600000000L, 0, Map.empty),
-        DateHistogramBucket("01/06/2008", 1212278400000L, 2, Map.empty)
+        DateHistogramBucket("01/06/2008", 1212278400000L, 2, Map.empty),
+        DateHistogramBucket("01/07/2008", 1214870400000L, 0, Map.empty)  // extended bound
       )
     }
   }
